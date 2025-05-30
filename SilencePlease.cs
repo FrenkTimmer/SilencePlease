@@ -14,12 +14,13 @@ namespace SilencePlease;
 public class SilencePlease : BaseUnityPlugin
 {
 	private const string ModName = "Silence Please";
-	private const string ModVersion = "1.0.2";
+	private const string ModVersion = "1.1.1";
 	private const string ModGUID = "org.bepinex.plugins.silenceplease";
 
 	private static ConfigEntry<string> muteSounds = null!;
 	private static readonly HashSet<string> mutedSoundsList = new();
-	private static ConfigEntry<bool> logSounds = null!;
+	private static readonly HashSet<string> loggedPrefabs = new();
+	private static ConfigEntry<LogMode> logMode = null!;
 	private static HashSet<string> previousMutedSoundsList = new();
 	private static ConfigEntry<bool> silenceChickens = null!;
 	private static ConfigEntry<float> wolfSilenceRange = null!;
@@ -33,6 +34,12 @@ public class SilencePlease : BaseUnityPlugin
 		Off,
 		CubsInRange,
 		On
+	}
+	public enum LogMode
+	{
+		Off,
+		On,
+		UniqueOnly
 	}
 
 	private static SilencePlease selfReference = null!;
@@ -51,7 +58,7 @@ public class SilencePlease : BaseUnityPlugin
 		silenceAsksvin = Config.Bind("Quick Mute", "Silence Asksvin", false, "If on, mutes the asksvin sound effects (sfx_asksvin_footstep, sfx_asksvin_idle).");
 
 		wolfSilenceRange = Config.Bind("Advanced", "Wolf Silence Range", 30f, "Range to check for nearby wolves when silencing howls.");
-		logSounds = Config.Bind("Advanced", "Log Sounds", false, "When enabled, the name of sounds playedwill be logged to console");
+		logMode = Config.Bind("Advanced", "Log Sounds", LogMode.Off, "Controls sound effect logging: Off, On (log all), or UniqueOnly (log each prefab once per session).");
 
 		muteSounds.SettingChanged += UpdateMuteList;
 		muteEnabled.SettingChanged += UpdateMuteList;
@@ -116,7 +123,7 @@ public class SilencePlease : BaseUnityPlugin
 				if (previousMutedSoundsList.Contains(prefabName))
 				{
 					zsfxAudioSource.mute = false;
-					if (logSounds.Value)
+					if (logMode.Value == LogMode.On)
 					{
 						logger.LogInfo($"Unmuted {prefabName} because muting is globally disabled.");
 					}
@@ -127,16 +134,15 @@ public class SilencePlease : BaseUnityPlugin
 			if (mutedSoundsList.Contains(prefabName))
 			{
 				zsfxAudioSource.mute = true;
-				if (logSounds.Value)
+				if (logMode.Value == LogMode.On)
 				{
 					logger.LogInfo($"Muted already-active sound effect {prefabName} due to mute list update.");
 				}
 			}
-
 			else if (previousMutedSoundsList.Contains(prefabName))
 			{
 				zsfxAudioSource.mute = false;
-				if (logSounds.Value)
+				if (logMode.Value == LogMode.On)
 				{
 					logger.LogInfo($"Unmuted already-active sound effect {prefabName} due to mute list update.");
 				}
@@ -181,16 +187,22 @@ public class SilencePlease : BaseUnityPlugin
 			if (instanceAudioSource != null)
 			{
 				instanceAudioSource.mute = muted;
-				if (logSounds.Value)
+				switch (logMode.Value)
 				{
-					if (muted)
-					{
-						logger.LogInfo($"Sound effect {prefabName} was muted.");
-					}
-					else
-					{
-						logger.LogInfo($"Sound effect {prefabName} played.");
-					}
+					case LogMode.On:
+						if (!muted)
+						{
+							logger.LogInfo($"Sound effect {prefabName} played.");
+						}
+
+						break;
+					case LogMode.UniqueOnly:
+						if (!muted && loggedPrefabs.Add(prefabName))
+						{
+							logger.LogInfo($"Sound effect {prefabName} played.");
+						}
+
+						break;
 				}
 			}
 		}
