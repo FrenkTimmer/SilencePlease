@@ -1,6 +1,6 @@
 {
   "name": "SilencePlease",
-  "version_number": "1.0.2",
+  "version_number": "1.1.1",
   "website_url": "https://github.com/FrenkTimmer/SilencePlease",
   "description": "A configurable Valheim mod to selectively mute specific sound effects.",
   "dependencies": ["denikson-BepInExPack_Valheim-5.4.2202"]

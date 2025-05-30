@@ -18,6 +18,7 @@ If you're enjoying the mod, perhaps consider buying me a coffee.
   - **Chickens:** Instantly mute chicken sounds (`sfx_love`).
   - **Shield Generators:** Instantly mute shield generator hum (`sfx_shieldgenerator_powered_loop`).
   - **Wolves:** Mute wolf howls, with options to mute only when cubs are nearby or always.
+  - **Asksvin:** Instantly mute Asksvin sound effects (`sfx_asksvin_footstep`, `sfx_asksvin_idle`).
 - **Wolf Howl Silencing Modes:**
   - **Off:** No wolf howls are muted.
   - **CubsInRange:** Only mute howls if a wolf cub is within a configurable range.
@@ -46,6 +47,9 @@ All settings for Silence Please are available in the BepInEx configuration file,
   - `Off`: No wolf howls are muted.  
   - `CubsInRange`: Only mutes howls if a wolf cub is within a certain range.  
   - `On`: Always mutes wolf howls.
+
+- **Silence Asksvin**  
+  If enabled, this will mute the Asksvin sound effects (`sfx_asksvin_footstep`, `sfx_asksvin_idle`). Set to `true` to silence Asksvin.
 
 - **Wolf Silence Range**  
   When using the `CubsInRange` mode for wolf howls, this setting determines the range (in meters) to check for nearby wolf cubs. Default is `30`.
