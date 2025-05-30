@@ -14,7 +14,7 @@ namespace SilencePlease;
 public class SilencePlease : BaseUnityPlugin
 {
 	private const string ModName = "Silence Please";
-	private const string ModVersion = "1.0.1";
+	private const string ModVersion = "1.0.2";
 	private const string ModGUID = "org.bepinex.plugins.silenceplease";
 
 	private static ConfigEntry<string> muteSounds = null!;
@@ -26,6 +26,7 @@ public class SilencePlease : BaseUnityPlugin
 	private static ConfigEntry<bool> silenceShieldGenerators = null!;
 	private static ConfigEntry<WolfSilenceMode> wolfSilenceMode = null!;
 	private static ConfigEntry<bool> muteEnabled = null!;
+	private static ConfigEntry<bool> silenceAsksvin = null!;
 
 	public enum WolfSilenceMode
 	{
@@ -47,6 +48,7 @@ public class SilencePlease : BaseUnityPlugin
 		silenceChickens = Config.Bind("Quick Mute", "Silence Chickens", false, "If on, mutes the chicken sound effect (sfx_love).");
 		silenceShieldGenerators = Config.Bind("Quick Mute", "Silence Shield Generators", false, "If on, mutes the shield generator sound effect (sfx_shieldgenerator_powered_loop).");
 		wolfSilenceMode = Config.Bind("Quick Mute", "Silence Wolves", WolfSilenceMode.Off, "Controls if wolf howls are muted. 'CubsInRange' only mutes howls if a wolf cub is in range.");
+		silenceAsksvin = Config.Bind("Quick Mute", "Silence Asksvin", false, "If on, mutes the asksvin sound effects (sfx_asksvin_footstep, sfx_asksvin_idle).");
 
 		wolfSilenceRange = Config.Bind("Advanced", "Wolf Silence Range", 30f, "Range to check for nearby wolves when silencing howls.");
 		logSounds = Config.Bind("Advanced", "Log Sounds", false, "When enabled, the name of sounds playedwill be logged to console");
@@ -57,6 +59,7 @@ public class SilencePlease : BaseUnityPlugin
 		silenceShieldGenerators.SettingChanged += UpdateMuteList;
 		wolfSilenceMode.SettingChanged += UpdateMuteList;
 		wolfSilenceRange.SettingChanged += UpdateMuteList;
+		silenceAsksvin.SettingChanged += UpdateMuteList;
 
 		Assembly assembly = Assembly.GetExecutingAssembly();
 		Harmony harmony = new(ModGUID);
@@ -90,6 +93,12 @@ public class SilencePlease : BaseUnityPlugin
 			if (silenceShieldGenerators.Value)
 			{
 				mutedSoundsList.Add("sfx_shieldgenerator_powered_loop");
+			}
+
+			if (silenceAsksvin.Value)
+			{
+				mutedSoundsList.Add("sfx_asksvin_footstep");
+				mutedSoundsList.Add("sfx_asksvin_idle");
 			}
 		}
 
